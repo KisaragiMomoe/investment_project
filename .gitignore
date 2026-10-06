@@ -1,0 +1,25 @@
+# 虚拟环境
+.venv/
+__pycache__/
+*.pyc
+
+# 数据
+data/raw/
+data/processed/
+*.csv
+*.parquet
+
+# 模型
+models/
+*.bin
+*.safetensors
+*.pth
+*.ckpt
+
+# 日志
+logs/
+*.log
+
+# 缓存
+.cache/
+.ipynb_checkpoints/
