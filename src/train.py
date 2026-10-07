@@ -8,7 +8,7 @@ import torch
 import torch.nn as nn
 import matplotlib.pyplot as plt
 
-from dataset import get_dataloaders
+from dataset import get_dataloaders, N_FEATURES
 from model import StockTransformer
 
 plt.rcParams["font.sans-serif"] = ["SimHei"]
@@ -24,11 +24,11 @@ print(f"使用设备：{device}")
 train_loader, test_loader, stats = get_dataloaders(batch_size = 32)
 
 model = StockTransformer(
-    n_features = 6,
-    d_model = 64,
-    num_heads = 4,
-    num_layers = 3,
-    dim_feedforward = 256,
+    n_features = N_FEATURES,      # 自动从 dataset 获取
+    d_model = 128,
+    num_heads = 8,
+    num_layers = 4,
+    dim_feedforward = 512,
     dropout = 0.1,
 ).to(device)
 

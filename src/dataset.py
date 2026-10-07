@@ -12,7 +12,31 @@ from torch.utils.data import Dataset, DataLoader
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RAW_DATA_DIR = os.path.join(PROJECT_ROOT, "data", "raw")
 
-FEATURE_COLS = ["ret_1", "ret_5", "ret_20", "vol_5", "vol_20", "sentiment"]
+FEATURE_COLS = [
+    # 动量
+    "ret_1", "ret_3", "ret_5", "ret_10", "ret_20", "ret_60",
+    # 波动率
+    "vol_5", "vol_10", "vol_20",
+    # 均线
+    "ma_dev_5", "ma_dev_10", "ma_dev_20", "ma_dev_60",
+    "ma_5_20_cross", "ma_20_60_cross",
+    # 成交量
+    "volume_change_1", "volume_change_5", "volume_ratio",
+    # 技术指标
+    "rsi_14", "macd", "macd_hist", "atr_ratio", "bb_position",
+    # 价格形态
+    "intraday_return", "high_low_range", "close_position",
+    # 市场环境
+    "hsi_ret_1", "hsi_ret_5", "hsi_ret_20",
+    "relative_strength_5", "relative_strength_20",
+    # 情感
+    "sentiment",
+]
+
+N_FEATURES = len(FEATURE_COLS)
+
+# 修改 csv_path
+csv_path = os.path.join(RAW_DATA_DIR, "stock_data_v2.csv")
 
 class StockDataset(Dataset):
     """股票序列数据集"""
@@ -29,13 +53,21 @@ class StockDataset(Dataset):
 def load_and_split(seq_len = 20, train_ratio = 0.8):
     """加载数据，构造序列，按时间切分，归一化"""
     # 1. 加载 CSV
-    csv_path = os.path.join(RAW_DATA_DIR, "stock_data.csv")
+    csv_path = os.path.join(RAW_DATA_DIR, "stock_data_v2.csv")
     df = pd.read_csv(csv_path, encoding = "utf-8-sig")
+    # 数据清洗
+    df = df.replace([np.inf, -np.inf], np.nan)   # Inf 转 NaN
+    df = df.dropna().reset_index(drop=True)       # 删掉所有 NaN 行
+
+    print(f"清洗后数据：{len(df)} 条")
     print(f"加载数据：{len(df)} 条")
 
     # 2. 提取特征和目标
     x_raw = df[FEATURE_COLS].values.astype(np.float32)
     y_raw = df["target"].values.astype(np.float32)
+
+    # 裁剪异常值
+    x_raw = np.clip(x_raw, -10, 10)
 
     # 3. 构造序列：用前 seq_len 天预测第 seq_len+1 天
     x_seq, y_seq = [], []
@@ -58,7 +90,7 @@ def load_and_split(seq_len = 20, train_ratio = 0.8):
     # 对每个特征，算训练集在所有时间步上的均值和标准差
     x_mean = x_train.mean(axis = (0, 1), keepdims = True)
     x_std = x_train.std(axis = (0, 1), keepdims = True)
-    x_std = np.where(x_std < 1e-8, 1.0, x_std)
+    x_std = np.where(x_std < 1e-3, 1.0, x_std)
     x_train = (x_train - x_mean) / x_std
     x_test = (x_test - x_mean) / x_std
     print(f"\n归一化后的特征统计（训练集）：")

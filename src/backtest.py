@@ -9,7 +9,7 @@ import pandas as pd
 import torch
 import matplotlib.pyplot as plt
 
-from dataset import load_and_split, FEATURE_COLS
+from dataset import load_and_split, FEATURE_COLS, N_FEATURES
 from model import StockTransformer
 
 plt.rcParams["font.sans-serif"] = ["SimHei"]
@@ -28,11 +28,11 @@ print(f"使用设备：{device}")
 print(f"测试集样本数：{len(x_test)}")
 
 model = StockTransformer(
-    n_features = 6,
-    d_model = 64,
-    num_heads = 4,
-    num_layers = 3,
-    dim_feedforward = 256,
+    n_features = N_FEATURES,
+    d_model = 128,
+    num_heads = 8,
+    num_layers = 4,
+    dim_feedforward = 512,
     dropout = 0.1,
 ).to(device)
 

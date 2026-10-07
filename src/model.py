@@ -7,6 +7,9 @@ import torch
 import torch.nn as nn
 import math
 
+from dataset import N_FEATURES
+
+
 class MultiHeadAttention(nn.Module):
     def __init__(self, d_model, num_heads):
         super().__init__()
@@ -70,7 +73,7 @@ class TransformerBlock(nn.Module):
 
 class StockTransformer(nn.Module):
     """股票收益率预测模型"""
-    def __init__(self, n_features = 6, d_model = 64, num_heads = 4, num_layers = 3, dim_feedforward = 256, dropout = 0.1):
+    def __init__(self, n_features = N_FEATURES, d_model = 128, num_heads = 8, num_layers = 4, dim_feedforward = 512, dropout = 0.1):
         super().__init__()
         self.d_model = d_model
         self.input_proj = nn.Linear(n_features, d_model)
@@ -92,9 +95,26 @@ class StockTransformer(nn.Module):
         x = x[:, -1, :]
         return self.output_proj(x)
 
+# if __name__ == "__main__":
+#     model = StockTransformer(n_features = 6, d_model = 64, num_heads = 4, num_layers = 3)
+#     x = torch.randn(2, 20, 6)
+#     y = model(x)
+#     print(f"输入形状：{x.shape}")
+#     print(f"输出形状：{y.shape}")
+#     print(f"参数量：{sum(p.numel() for p in model.parameters()):,}")
+
 if __name__ == "__main__":
-    model = StockTransformer(n_features = 6, d_model = 64, num_heads = 4, num_layers = 3)
-    x = torch.randn(2, 20, 6)
+    from dataset import N_FEATURES
+
+    model = StockTransformer(
+        n_features=N_FEATURES,
+        d_model=128,
+        num_heads=8,
+        num_layers=4,
+        dim_feedforward=512,
+        dropout=0.1,
+    )
+    x = torch.randn(2, 20, N_FEATURES)
     y = model(x)
     print(f"输入形状：{x.shape}")
     print(f"输出形状：{y.shape}")
