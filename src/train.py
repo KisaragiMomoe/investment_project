@@ -92,7 +92,7 @@ print("（IC > 0.05 算不错，> 0.1 很强）")
 save_path = os.path.join(MODEL_DIR, "stock_transformer.pth")
 torch.save({
     "model_state_dict": model.state_dict(),
-    "stats": {"X_mean": stats[0].tolist(), "X_std": stats[1].tolist()},
+    "stats": {"x_mean": stats[0].tolist(), "x_std": stats[1].tolist()},
 }, save_path)
 print(f"\n模型已保存到：{save_path}")
 
